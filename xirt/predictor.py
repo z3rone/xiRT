@@ -158,7 +158,7 @@ class ModelData:
                                               [int((1 - test_size) * len(train_init_idx))])
 
                 # take a testing fold
-                pre_idx = train_df_idx[cv_locs[~train_msk][0]]
+                pre_idx = train_df_idx[cv_locs[~train_msk][0].astype(int)]
 
                 # change the pattern for next iteration
                 cv_pattern = cv_pattern[1:] + [cv_pattern[0]]
