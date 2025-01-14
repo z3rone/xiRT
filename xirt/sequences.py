@@ -164,7 +164,7 @@ def reorder_sequences(matches_df, column_names=const.default_column_names):
     return swapping_df
 
 
-def modify_cl_residues(matches_df, seq_in, reduce_cl=False):
+def modify_cl_residues(matches_df, seq_in, column_names, reduce_cl=False):
     """
     Change the cross-linked residues to modified residues.
 
@@ -183,8 +183,8 @@ def modify_cl_residues(matches_df, seq_in, reduce_cl=False):
     # introduce a new prefix cl for each crosslinked residue
     for seq_id, seq_i in enumerate(seq_in):
         error_df = matches_df[
-            matches_df["Seqar_" + seq_i].str.len() <= matches_df["link_pos_p" + str(seq_id + 1)]
-        ][["Seqar_" + seq_i, "link_pos_p" + str(seq_id + 1)]]
+            matches_df["Seqar_" + seq_i].str.len() <= matches_df[column_names["link_pos_basename"] + str(seq_id + 1)]
+        ][["Seqar_" + seq_i, column_names["link_pos_basename"] + str(seq_id + 1)]]
 
         if len(error_df) > 0:
             print(f"List index out of range for {seq_id}. Check peptide sequence for unwanted characters")
@@ -193,7 +193,7 @@ def modify_cl_residues(matches_df, seq_in, reduce_cl=False):
         matches_df["Seqar_" + seq_i] = matches_df.apply(
             lambda r: convert_seqar(
                 r["Seqar_" + seq_i],
-                r["link_pos_p" + str(seq_id + 1)],
+                r[column_names["link_pos_basename"] + str(seq_id + 1)],
                 reduce_cl
             ),
             axis=1
@@ -202,7 +202,7 @@ def modify_cl_residues(matches_df, seq_in, reduce_cl=False):
         #    matches_df,
         #    lambda r: convert_seqar(
         #        r["Seqar_" + seq_i],
-        #        r["link_pos_p" + str(seq_id + 1)],
+        #        r[column_names["link_pos_basename"] + str(seq_id + 1)],
         #        reduce_cl
         #    ),
         #    axis=1

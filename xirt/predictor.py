@@ -444,7 +444,7 @@ def preprocess(matches_df, sequence_type="crosslink", max_length=-1, cl_residue=
 
     if cl_residue:
         logger.info("Encode crosslinked residues.")
-        xs.modify_cl_residues(matches_df, seq_in=seq_in)
+        xs.modify_cl_residues(matches_df, seq_in=seq_in, column_names=column_names)
 
     # for pseudo linears, simply concat the input data and put a spacer between the two sequences
     if sequence_type == "pseudolinear":
