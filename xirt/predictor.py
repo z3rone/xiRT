@@ -153,7 +153,7 @@ class ModelData:
 
                 # combine 2 test folds to get a training fold
                 # get train folds -> get locations -> get index
-                train_init_idx = train_df_idx[np.concatenate(cv_locs[train_msk])]
+                train_init_idx = train_df_idx[np.concatenate(cv_locs[train_msk]).astype(int)]
                 train_idx, val_idx = np.split(train_init_idx,
                                               [int((1 - test_size) * len(train_init_idx))])
 
