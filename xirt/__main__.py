@@ -181,7 +181,8 @@ def xirt_runner(peptides_file: str, out_dir, xirt_params, learning_params, nrows
     logger.info(f"Starting crossvalidation (nfolds={n_splits})")
     start_timecv = time.time()
     for train_idx, val_idx, pred_idx in training_data.iter_splits(n_splits=n_splits,
-                                                                  test_size=test_size):
+                                                                  test_size=test_size,
+                                                                  column_names=xirt_params['column_names']):
         logger.info("---------------------------------------------------------")
         logger.info(f"Starting crossvalidation iteration: {cv_counter}")
         logger.info(f"# Train peptides: {len(train_idx)}")

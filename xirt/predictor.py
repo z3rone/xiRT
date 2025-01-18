@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
+from xirt.NoOverlapKFold import NoOverlapKFold
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
@@ -94,7 +95,7 @@ class ModelData:
         self.predict_idx = self.psms.index.difference(psms_train_idx)
         self.shuffled = True
 
-    def iter_splits(self, n_splits, test_size):
+    def iter_splits(self, n_splits, test_size, column_names):
         """
         Return iterator indicies for training, testing, validation based on the training data.
 
@@ -105,6 +106,7 @@ class ModelData:
         Args:
             n_splits: int, number of crossvalidation splits
             test_size: float, percentage of validation data to use
+            column_names: dict, Column names in input
 
         Returns:
             iterator, (train_idx, val_idx, pred_idx)
@@ -148,11 +150,29 @@ class ModelData:
             logger.info("Running in crossvalidation-mode: cv will be done.")
             # get n_splits of the training
             train_features1 = self.features1.loc[self.train_idx]
-            kf = KFold(n_splits=n_splits, shuffle=False)
-            kf.get_n_splits(train_features1)
+            kf = NoOverlapKFold(
+                n_splits,
+                shuffle=True,
+                pep1_id_col=column_names['peptide1_unmod_sequence'],
+                pep2_id_col=column_names['peptide2_unmod_sequence'],
+                target_col='isTT',
+                logger=logger,
+            )
+            splits = kf.splits_by_peptides(
+                df=train_features1,
+                pepseqs=self.psms.loc[
+                    self.train_idx,
+                    [
+                        column_names['peptide1_unmod_sequence'],
+                        column_names['peptide2_unmod_sequence'],
+                    ]
+                ],
+                labels=self.psms.loc[self.train_idx, ['isTT']],
+                check_labels=False
+            )
             cv_slice_idxs = np.array(
                 [
-                    i[1] for i in kf.split(train_features1)
+                    i[1] for i in splits
                 ],
                 dtype=object
             )
@@ -165,7 +185,7 @@ class ModelData:
 
                 # combine 2 test folds to get a training fold
                 # get train folds -> get locations -> get index
-                train_init_idx = train_df_idx[split_train.tolist()]
+                train_init_idx = split_train.tolist()
                 train_idx, val_idx = np.split(
                     train_init_idx,
     [
@@ -174,9 +194,7 @@ class ModelData:
                 )
 
                 # take a testing fold
-                pre_idx = train_df_idx[
-                    list(cv_slice_idxs[~train_msk][0])
-                ]
+                pre_idx = cv_slice_idxs[~train_msk][0]
 
                 # change the pattern for next iteration
                 cv_pattern = cv_pattern[1:] + [cv_pattern[0]]
