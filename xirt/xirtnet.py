@@ -287,9 +287,15 @@ class xiRTNET:
         if self.LSTM_p["bidirectional"]:
             # GRU implementations do not support activiation
             # activation = self.LSTM_p["activation"], disabled fo rnow
-            lstm = Bidirectional(f_rnn(self.LSTM_p["units"], activity_regularizer=reg_act,
-                                       kernel_regularizer=reg_kernel, return_sequences=return_seqs),
-                                 name=f"{name}Bi{f_name}")(prev_layer)
+            lstm = Bidirectional(
+                GRU(
+                    self.LSTM_p["units"],
+                    activity_regularizer=reg_act,
+                    kernel_regularizer=reg_kernel,
+                    return_sequences=return_seqs
+                ),
+                name=f"{name}Bi{f_name}"
+            )(prev_layer)
         else:
             lstm = f_rnn(self.LSTM_p["units"], activation=self.LSTM_p["activation"],
                          kernel_regularizer=reg_kernel, return_sequences=return_seqs,
@@ -339,7 +345,9 @@ class xiRTNET:
             layer, a densely connected layer with dropout
         """
         # add regularizer
-        reg_ = self._init_regularizer(self.dense_p["kernel_regularizer"][idx],
+        reg_ = None
+        if self.dense_p["regularization"][idx]:
+            reg_ = self._init_regularizer(self.dense_p["kernel_regularizer"][idx],
                                       self.dense_p["regularizer_value"][idx])
         # dense layer
         dense = Dense(self.dense_p["neurons"][idx], kernel_regularizer=reg_)(prev_layer)
