@@ -288,7 +288,7 @@ def plot_epoch_cv(callback_path, tasks, xirt_params, outpath, show=False):  # pr
         plt.tight_layout()
         if show:
             plt.show()
-        save_fig(f, outpath, outname="cv_epochs_{}".format(cname))
+        save_fig(f, outpath, outname=f"cv_epochs_{cname}")
         plt.clf()
 
 
