@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 numpy = "*"
-pandas = "1.0.5"
+pandas = "*"
 pyteomics = "*"
-sklearn = "*"
+scikit-learn = "*"
 tensorflow = "*"
 tensorflow_addons = "*"
 tqdm = "*"
