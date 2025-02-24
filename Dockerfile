@@ -4,6 +4,7 @@ RUN mkdir -p /app
 WORKDIR /app
 
 COPY setup.py .
+COPY setup.cfg .
 COPY xirt/ xirt/
 COPY requirements.txt .
 
